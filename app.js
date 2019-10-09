@@ -93,7 +93,7 @@ class UI {
         e.target.innerText = "in Cart";
         e.target.disabled = true;
 
-        // get product from products based on id
+        // get product from products array based on id
         let cartItem = {
           ...Storage.getProduct(id),
           amount: 1
@@ -105,7 +105,9 @@ class UI {
         //set cart values
         this.setCartValues(cart);
         // display cart item
+        this.addCartItem(cartItem)
         // show the cart
+        this.showCart();
       });
 
     });
@@ -125,6 +127,57 @@ class UI {
     cartItems.innerText = itemsTotal; //number shown next to cart icon
   }
 
+  addCartItem(item) {
+    const div = document.createElement('div');
+    div.classList.add('cart-item');
+    div.innerHTML = `
+    
+    <img src=${item.image} alt="">
+      <div>
+        <h4>${item.title}</h4>
+        <h5>$${item.price}</h5>
+        <span class="remove-item" data-id=${item.id}>remove</span>
+      </div>
+      <div>
+        <i class="fas fa-chevron-up" data-id=${item.id}></i>
+        <p class="item-amount">${item.amount}</p>
+        <i class="fas fa-chevron-down" data-id=${item.id}></i>
+      </div>
+      
+      `;
+
+    cartContent.appendChild(div);
+
+  }
+
+  showCart() {
+
+    cartOverlay.classList.add('transparentBackground');
+    cartDOM.classList.add('showCart');
+
+  }
+
+  setupAPP() {
+    cart = Storage.getCart(); // do we have data in the cart from local storage?
+    this.setCartValues(cart);
+    this.populateCart(cart);
+    cartBtn.addEventListener('click', this.showCart);
+    closeCartBtn.addEventListener('click', this.hideCart)
+
+  }
+
+  populateCart(cart) {
+    cart.forEach(item => this.addCartItem(item))
+
+  }
+
+  hideCart() {
+    cartOverlay.classList.remove('transparentBackground');
+    cartDOM.classList.remove('showCart');
+  }
+
+
+
 }
 
 // local storage
@@ -143,14 +196,22 @@ class Storage {
     localStorage.setItem("cart", JSON.stringify(cart))
   }
 
+  //check for item in cart in local storage, if existent, return.
+  // if non existent, empty array remains unchanged.
+  static getCart() {
+    return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+  }
+
 }
 
 
 document.addEventListener("DOMContentLoaded", () => {
   //create instances of classes
-
   const ui = new UI();
   const products = new Products();
+
+  // setup application
+  ui.setupAPP();
 
   // get all products
   products.getProducts().then(products => {
