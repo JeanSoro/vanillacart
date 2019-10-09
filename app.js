@@ -14,6 +14,9 @@ const productsDOM = document.querySelector('.products-center');
 //----> MAIN CART
 let cart = [];
 
+//--->BUTTONS
+let buttonsDOM = [];
+
 // getting products
 class Products {
   async getProducts() {
@@ -72,8 +75,10 @@ class UI {
     productsDOM.innerHTML = result;
   }
 
+  //getting IDs for all buttons
   getBagButtons() {
-    const buttons = [...document.querySelectorAll(".bag-btn")];
+    const buttons = [...document.querySelectorAll(".bag-btn")]; //nodelist into array spread operator
+    buttonsDOM = buttons;
 
 
     buttons.forEach(button => {
@@ -81,10 +86,43 @@ class UI {
       let inCart = cart.find(item => item.id === id);
 
       if (inCart) {
-
+        button.innerText = "In cart";
+        button.disabled = true;
       }
+      button.addEventListener('click', (e) => {
+        e.target.innerText = "in Cart";
+        e.target.disabled = true;
+
+        // get product from products based on id
+        let cartItem = {
+          ...Storage.getProduct(id),
+          amount: 1
+        };
+        // add product to the cart
+        cart = [...cart, cartItem];
+        //save cart in local storage
+        Storage.saveCart(cart)
+        //set cart values
+        this.setCartValues(cart);
+        // display cart item
+        // show the cart
+      });
+
     });
 
+  }
+
+  setCartValues(cart) {
+    let tempCartTotal = 0;
+    let itemsTotal = 0;
+
+    cart.map(item => {
+      tempCartTotal += item.price * item.amount;
+      itemsTotal += item.amount;
+    })
+
+    cartTotal.innerText = parseFloat(tempCartTotal.toFixed(2)); //price shown when cart open
+    cartItems.innerText = itemsTotal; //number shown next to cart icon
   }
 
 }
@@ -94,6 +132,15 @@ class Storage {
 
   static saveProducts(products) { //no need to instantiate class using static methods
     localStorage.setItem("products", JSON.stringify(products))
+  }
+
+  static getProduct(id) {
+    let products = JSON.parse(localStorage.getItem('products')); // turn string into objects
+    return products.find(product => product.id === id);
+  }
+
+  static saveCart(cart) { //no need to instantiate class using static methods
+    localStorage.setItem("cart", JSON.stringify(cart))
   }
 
 }
@@ -111,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ui.displayProducts(products);
     Storage.saveProducts(products);
   }).then(() => {
-    ui.getBagButton()
+    ui.getBagButtons()
   });
 
 });
