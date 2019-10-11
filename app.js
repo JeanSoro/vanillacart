@@ -14,7 +14,7 @@ const productsDOM = document.querySelector('.products-center');
 //----> MAIN CART
 let cart = [];
 
-//--->BUTTONS
+//---> BUTTONS
 let buttonsDOM = [];
 
 // getting products
@@ -77,23 +77,25 @@ class UI {
 
   //getting IDs for all buttons
   getBagButtons() {
-    const buttons = [...document.querySelectorAll(".bag-btn")]; //nodelist into array spread operator
+    const buttons = [...document.querySelectorAll(".bag-btn")]; //turn nodelist into array using spread operator
     buttonsDOM = buttons;
 
 
     buttons.forEach(button => {
       let id = button.dataset.id;
-      let inCart = cart.find(item => item.id === id);
+      let inCart = cart.find(item => item.id === id); //check if item is in cart
 
       if (inCart) {
-        button.innerText = "In cart";
+        button.innerText = "In Cart";
         button.disabled = true;
       }
+      //if not in cart
+
       button.addEventListener('click', (e) => {
-        e.target.innerText = "in Cart";
+        e.target.innerText = "In Cart";
         e.target.disabled = true;
 
-        // get product from products array based on id
+        // get single product from products' array based on ID data
         let cartItem = {
           ...Storage.getProduct(id),
           amount: 1
@@ -102,9 +104,9 @@ class UI {
         cart = [...cart, cartItem];
         //save cart in local storage
         Storage.saveCart(cart)
-        //set cart values
+        //set cart values(number showing above cart icon)
         this.setCartValues(cart);
-        // display cart item
+        // display items currently in the cart
         this.addCartItem(cartItem)
         // show the cart
         this.showCart();
@@ -119,11 +121,11 @@ class UI {
     let itemsTotal = 0;
 
     cart.map(item => {
-      tempCartTotal += item.price * item.amount;
-      itemsTotal += item.amount;
+      tempCartTotal += item.price * item.amount; //total price shown when cart open
+      itemsTotal += item.amount; //number shown next to cart icon
     })
 
-    cartTotal.innerText = parseFloat(tempCartTotal.toFixed(2)); //price shown when cart open
+    cartTotal.innerText = parseFloat(tempCartTotal.toFixed(2)); //total price shown when cart open
     cartItems.innerText = itemsTotal; //number shown next to cart icon
   }
 
@@ -157,7 +159,6 @@ class UI {
     cartBtn.addEventListener('click', this.showCart);
     closeCartBtn.addEventListener('click', this.hideCart);
     // cartOverlay.addEventListener('click', this.hideCart)
-
 
   }
 
@@ -206,8 +207,22 @@ class UI {
         cartIncreaseQuantityBtn.nextElementSibling.innerText = tempItem.amount;
 
 
-      }
+      } else if (e.target.classList.contains('fa-chevron-down')) {
 
+        let cartDecreaseQuantityBtn = e.target;
+        let id = cartDecreaseQuantityBtn.dataset.id;
+        let tempItem = cart.find(item => item.id === id);
+        tempItem.amount = tempItem.amount - 1;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart);
+          this.setCartValues(cart);
+        } else {
+          cartContent.removeChild(cartDecreaseQuantityBtn.parentElement.parentElement);
+          this.removeItem(id)
+          cartDecreaseQuantityBtn.previousElementSibling.innerText = tempItem.amount;
+        }
+
+      }
 
     });
   };
@@ -241,19 +256,17 @@ class UI {
     return buttonsDOM.find(button => button.dataset.id === id)
   }
 
-
-
 }
 
 // local storage
 class Storage {
 
   static saveProducts(products) { //no need to instantiate class using static methods
-    localStorage.setItem("products", JSON.stringify(products))
+    localStorage.setItem("products", JSON.stringify(products)) //turn products array into string
   }
 
   static getProduct(id) {
-    let products = JSON.parse(localStorage.getItem('products')); // turn string into objects
+    let products = JSON.parse(localStorage.getItem('products')); // JSON.parse turns string into objects
     return products.find(product => product.id === id);
   }
 
@@ -261,7 +274,7 @@ class Storage {
     localStorage.setItem("cart", JSON.stringify(cart))
   }
 
-  //check for item in cart in local storage, if existent, return.
+  // check for item in cart in local storage, if existent, return.
   // if non existent, empty array remains unchanged.
   static getCart() {
     return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
