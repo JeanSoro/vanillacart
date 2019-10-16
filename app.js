@@ -1,3 +1,13 @@
+const client = contentful.createClient({
+  // This is the space ID. A space is like a project folder in Contentful terms
+  space: "rex0528cmzxy",
+  // This is the access token for this space. Normally you get both ID and the token in the Contentful web app
+  accessToken: "FXh9-RO20MUbBt08hGJ1ae7Ca70LVeMERx4bAwyO3LQ"
+});
+
+console.log(client)
+
+
 // variable declarations
 
 const cartBtn = document.querySelector('.cart-btn');
@@ -22,10 +32,17 @@ class Products {
   async getProducts() {
 
     try {
-      let result = await fetch('products.json');
-      let data = await result.json();
 
-      let products = data.items;
+
+      let contentful = await client.getEntries()
+      // console.log(contentful);
+
+
+      // let result = await fetch('products.json');
+      // let data = await result.json();
+
+      // let products = data.items;
+      let products = contentful.items;
       products = products.map(item => {
         const {
           title,
@@ -192,7 +209,7 @@ class UI {
 
         let removeItem = e.target;
         let id = removeItem.dataset.id;
-        cartContent.removeChild(removeItem.parentElement);
+        cartContent.removeChild(removeItem.parentElement.parentElement);
         this.removeItem(id);
 
       } else if (e.target.classList.contains('fa-chevron-up')) {
