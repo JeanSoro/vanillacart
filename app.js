@@ -5,7 +5,7 @@ const client = contentful.createClient({
   accessToken: "FXh9-RO20MUbBt08hGJ1ae7Ca70LVeMERx4bAwyO3LQ"
 });
 
-console.log(client)
+// console.log(client)
 
 
 // variable declarations
@@ -181,7 +181,6 @@ class UI {
 
   populateCart(cart) {
     cart.forEach(item => this.addCartItem(item))
-
   }
 
   showCart() {
