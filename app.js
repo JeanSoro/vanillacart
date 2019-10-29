@@ -7,7 +7,6 @@ const client = contentful.createClient({
 
 // console.log(client)
 
-
 // variable declarations
 
 const cartBtn = document.querySelector('.cart-btn');
